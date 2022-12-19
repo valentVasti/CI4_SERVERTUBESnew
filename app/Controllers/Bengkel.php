@@ -3,9 +3,9 @@
 namespace App\Controllers;
 
 use CodeIgniter\RESTful\ResourceController;
-use App\Models\ModelUser;
+use App\Models\ModelBengkel;
 
-class User extends ResourceController
+class Bengkel extends ResourceController
 {
     /**
      * Return an array of resource objects, themselves in array format
@@ -14,18 +14,13 @@ class User extends ResourceController
      */
     public function index()
     {
-        $modelUser = new ModelUser();
-            $data = $modelUser->findAll();
-            $response = 
-                // 'status' => 200,
-                // 'error' => "false",
-                // 'message' => '',
-                // 'totaldata' => count ($data),
-                // 'data' => $data
-                $data
-            ;            
+        $modelBengkel = new ModelBengkel();
+        $data = $modelBengkel->findAll();
+        $response = 
+            $data
+        ;            
 
-            return $this->respond($response, 200);
+        return $this->respond($response, 200);
     }
 
     /**
@@ -33,42 +28,28 @@ class User extends ResourceController
      *
      * @return mixed
      */
-    public function show($cari = null)
+    public function show($id = null)
     {
-        $modelUser = new ModelUser();
+        $modelUser = new ModelBengkel();
 
-        $data = $modelUser->orLike('username', $cari)
-            ->orLike('email', $cari)
-            ->orLike('id', $cari)->get()->getResult();
+        $data = $modelUser->orLike('id', $id)->get()->getResult();
 
-            // if(count($data) > 1){
-            //     $response = [
-            //         'status' => 200,
-            //         'error' => "false",
-            //         'message' => '',
-            //         'totaldata' => count($data),
-            //         'data' => $data
-            //     ];
-
-            $response = 
+        if($data!=null){
+            // $response = [
+            //     'message' => "Data ditemukan!",
+            //     'data' => $data
+            // ];
+            $response =
                 $data
             ;
+        }else{
+            $response = [
+                'message' => "Data tidak ditemukan!",
+                'data' => null
+            ];
+        }
 
-            return $this->respond($response, 200);
-
-            // }else if(count($data)==1){
-            //     $response = [
-            //         'status' => 200,
-            //         'error' => "false",
-            //         'message' => '',
-            //         'totaldata' => count($data),
-            //         'data' => $data
-            //     ];
-
-            //     return $this->respond($response, 200);
-            // }else{
-            //     return $this->failNotFound('Data tidak ditemukan');
-            // }
+        return $this->respond($response, 200);
     }
 
     /**
@@ -88,8 +69,7 @@ class User extends ResourceController
      */
     public function create()
     {
-
-        // $rules = [
+       // $rules = [
         //     'username'            => 'required',
         //     'password'            => 'required',
         //     'email'               => 'required',
@@ -99,7 +79,7 @@ class User extends ResourceController
 
         // if($this->validate($rules)){
 
-            $model = new ModelUser();
+            $model = new ModelBengkel();
             $data = json_decode(trim(file_get_contents('php://input')), true) ?? $this->request->getPost();
             // $data["password"] = password_hash($data["password"], PASSWORD_DEFAULT);
 
@@ -123,7 +103,6 @@ class User extends ResourceController
         return $this->respond($response, 201);
 
         // }
-
     }
 
     /**
@@ -143,25 +122,17 @@ class User extends ResourceController
      */
     public function update($id = null)
     {
-        $model = new ModelUser();
+        $model = new ModelBengkel();
         $data = json_decode(trim(file_get_contents('php://input')), true) ?? $this->request->getVar();
 
         // $data = [
-        //     'username' => $this->request->getVar("username"),
-        //     'password' => $this->request->getVar("password"),
-        //     'email' => $this->request->getVar("email"),
-        //     'birth' => $this->request->getVar("birth"),
-        //     'phone' => $this->request->getVar("phone"),
+        //     'nama' => $this->request->getVar("nama"),
+        //     'alamat' => $this->request->getVar("alamat"),
+        //     'jamOperasional' => $this->request->getVar("jamOperasional"),
+        //     'jenis' => $this->request->getVar("jenis"),
         // ];
 
         $data = $this->request->getRawInput();
-        // $model->update($id, $data);
-        // $response = [
-        //     'status' => 200,
-        //     'error' => null,
-        //     'message' => "Data berhasil dibaharui"
-        // ];
-        // return $this->respond($response);
 
         if(!$model->update($id, $data)) {
             $response = [
@@ -170,16 +141,16 @@ class User extends ResourceController
                 'message' => $model->errors(),
             ];
             return $this->respond($response, 404);
-        }
-               
-        $response = [
-            'status' => 201,
-            'error' => "false",
-            'message' => "Berhasil Update",
-            'data' => $data
-        ];
-
-        return $this->respond($response, 201);
+        }else{
+            $response = [
+                'status' => 201,
+                'error' => "false",
+                'message' => "Berhasil Edit Bengkel",
+                'data' => $data
+            ];
+    
+            return $this->respond($response, 201);
+        }              
     }
 
     /**
@@ -189,12 +160,12 @@ class User extends ResourceController
      */
     public function delete($id = null)
     {
-        $modelUser = new ModelUser();
+        $modelBengkel = new ModelBengkel();
 
-        $cekData = $modelUser->find($id);
+        $cekData = $modelBengkel->find($id);
 
         if($cekData) {
-            $modelUser->delete($id);
+            $modelBengkel->delete($id);
             $response = [
                 'status' => 200,
                 'error' => null,
